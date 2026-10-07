@@ -27,9 +27,11 @@ The app defaults to mock mode. To exercise Pages Functions locally, copy `.dev.v
 npm run pages:dev
 ```
 
-## Deploy to Cloudflare Pages
+## Deploy to Cloudflare Workers
 
-Use `app` as the project root, `npm run build` as the build command and `dist` as the output directory. The `functions/` directory must remain at the Pages project root. Configure `PROJECT_API_BASE_URL`, `PROJECT_API_TOKEN` and `ENVIRONMENT` under Cloudflare Variables and Secrets. `PROJECT_API_TOKEN` must be encrypted as a Secret.
+The `app/` project can deploy as a Worker with static assets. From `app/`, run `npm install`, then `npm run worker:deploy`. The root `wrangler.toml` configures the Worker entry point and serves the Vite `dist/` output through Workers Static Assets. For Git-connected builds, use `npm run build` as the build command and `npm run worker:deploy` as the deploy command, with `app` as the root directory.
+
+Configure `PROJECT_API_BASE_URL` and `ENVIRONMENT` as Worker variables and `PROJECT_API_TOKEN` as an encrypted Worker Secret. `PROJECT_API_TOKEN` must never be exposed through a `VITE_*` variable.
 
 ## Important security boundary
 
