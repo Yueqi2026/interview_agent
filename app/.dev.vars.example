@@ -1,0 +1,4 @@
+# Local Pages Functions secrets. Copy to .dev.vars and DO NOT commit it.
+PROJECT_API_BASE_URL=https://api.example.com/
+PROJECT_API_TOKEN=replace-me
+ENVIRONMENT=development

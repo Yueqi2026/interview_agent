@@ -1,0 +1,9 @@
+import { Activity, Eye, EyeOff, ShieldCheck, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+
+const initial=[
+ {id:1,title:'2024 字节商业化产品经理 · 二面指标题',type:'面试经历',on:true},
+ {id:2,title:'广告漏斗指标拆解与异常定位复盘',type:'个人方法',on:true},
+ {id:3,title:'当前公司内部项目细节',type:'私人信息',on:false}
+];
+export default function Dashboard(){const [rows,setRows]=useState(initial); return <section className="page section wide-top"><div className="dashboard-head"><div><div className="eyebrow">MY AGENT</div><h1>Agent 知道什么，由你控制</h1><p className="muted">每一次授权、隐藏与删除都应该形成可审计的 Consent 记录。</p></div><div className="security-badge"><ShieldCheck size={18}/> Privacy by design</div></div><div className="dashboard-stats"><div><span>可用知识</span><strong>{rows.filter(r=>r.on).length}</strong></div><div><span>隐藏条目</span><strong>{rows.filter(r=>!r.on).length}</strong></div><div><span>Agent 状态</span><strong className="status-text"><Activity size={16}/> Ready</strong></div></div><div className="dashboard-grid"><div className="panel fresh-card"><h3>我的 Agent 知识</h3>{rows.map(r=><div className="knowledge-row" key={r.id}><div><span className="mini-label">{r.type}</span><strong>{r.title}</strong></div><div className="row-actions"><button className={`toggle ${r.on?'on':''}`} onClick={()=>setRows(x=>x.map(v=>v.id===r.id?{...v,on:!v.on}:v))}>{r.on?<Eye size={16}/>:<EyeOff size={16}/>} {r.on?'Agent 可用':'已隐藏'}</button><button className="icon-btn" onClick={()=>setRows(x=>x.filter(v=>v.id!==r.id))}><Trash2 size={16}/></button></div></div>)}</div><aside className="panel fresh-card"><h3>数据边界</h3><div className="boundary"><b>公开 Profile</b><span>公司、岗位、年份等经过你确认的展示信息</span></div><div className="boundary"><b>Agent Knowledge</b><span>只允许 Retrieval Service 读取的授权经验</span></div><div className="boundary"><b>Private Identity</b><span>姓名、联系方式、验证材料永不进入 Agent</span></div></aside></div></section>}
