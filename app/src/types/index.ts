@@ -13,6 +13,7 @@ export type Agent = {
   avatar: string;
   updatedAt: string;
   gradient?: string;
+  interviewHighlights?: { round: string; focus: string; prompt: string }[];
 };
 
 export type ChatMessage = {

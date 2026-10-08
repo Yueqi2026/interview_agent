@@ -60,24 +60,18 @@ export async function signIn(email: string): Promise<{ user: AuthUser; token?: s
 }
 
 export async function searchAgents(query = ''): Promise<Agent[]> {
-  if (mode === 'mock') {
-    await new Promise(r => setTimeout(r, 180));
-    const q = query.toLowerCase().trim();
-    if (!q) return agents;
-    return agents.filter(a => [a.name, a.company, a.role, a.location, ...a.tags].join(' ').toLowerCase().includes(q));
-  }
-  return request<Agent[]>(`/agents?q=${encodeURIComponent(query)}`);
+  await new Promise(r => setTimeout(r, 180));
+  const q = query.toLowerCase().trim();
+  if (!q) return agents;
+  return agents.filter(a => [a.name, a.company, a.role, a.location, ...a.tags].join(' ').toLowerCase().includes(q));
 }
 
 export async function getAgent(id: string): Promise<Agent | undefined> {
-  if (mode === 'mock') {
-    await new Promise(r => setTimeout(r, 160));
-    return agents.find(a => a.id === id);
-  }
-  return request<Agent>(`/agents/${id}`);
+  await new Promise(r => setTimeout(r, 160));
+  return agents.find(a => a.id === id);
 }
 
-export async function sendMessage(agentId: string, content: string): Promise<ChatMessage> {
+export async function sendMessage(agentId: string, content: string, history: ChatMessage[] = []): Promise<ChatMessage> {
   if (mode === 'mock') {
     const source = /现在|目前|最新|当下/.test(content) ? 'public' : /建议|准备|应该/.test(content) ? 'analysis' : 'experience';
     const agent = agents.find(a => a.id === agentId) || agents[0];
@@ -89,15 +83,14 @@ export async function sendMessage(agentId: string, content: string): Promise<Cha
     await new Promise(r => setTimeout(r, 700));
     return { id: crypto.randomUUID(), role: 'assistant', content: body, source };
   }
-  return request<ChatMessage>(`/agents/${agentId}/chat`, { method: 'POST', body: JSON.stringify({ content }) });
+  return request<ChatMessage>(`/agents/${agentId}/chat`, { method: 'POST', body: JSON.stringify({ content, messages: history.map(({ role, content: text }) => ({ role, content: text })) }) });
 }
 
 export async function createContributorDraft(draft: ContributorDraft) {
-  if (mode === 'mock') return { id: 'draft-' + Date.now(), ...draft };
-  return request('/contributor/experiences', { method: 'POST', body: JSON.stringify(draft) });
+  return { id: 'draft-' + Date.now(), ...draft };
 }
 
-export async function interviewTurn(sessionId: string, answer: string): Promise<InterviewTurn> {
+export async function interviewTurn(sessionId: string, answer: string, history: { role: 'user' | 'assistant'; content: string }[] = []): Promise<InterviewTurn> {
   if (mode === 'mock') {
     const turns = [
       '这次面试一共有几轮？你先从整体流程讲起。',
@@ -110,7 +103,7 @@ export async function interviewTurn(sessionId: string, answer: string): Promise<
     await new Promise(r => setTimeout(r, 520));
     return { sessionId: `session-${n}`, question: turns[Math.min(n, turns.length - 1)], done: n >= turns.length - 1, progress: Math.min(100, (n + 1) * 20) };
   }
-  return request(`/interview-sessions/${sessionId}/turn`, { method: 'POST', body: JSON.stringify({ answer }) });
+  return request(`/interview-sessions/${sessionId}/turn`, { method: 'POST', body: JSON.stringify({ sessionId, answer, messages: history }) });
 }
 
 export async function extractInterview(sessionId: string) {
