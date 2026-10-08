@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Menu, Sparkles, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { APP_VERSION } from '../config/app';
 
 export default function Layout() {
   const [open,setOpen]=useState(false);
@@ -23,6 +24,6 @@ export default function Layout() {
       </div>
     </header>
     <main key={location.pathname} className="route-enter"><Outlet/></main>
-    <footer><span>过来人 AI · Experience-powered career intelligence</span><span>v0.4.1 · UI fix</span></footer>
+    <footer><span>过来人 AI · Experience-powered career intelligence</span><span>v{APP_VERSION}</span></footer>
   </div>
 }

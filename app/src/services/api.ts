@@ -4,6 +4,7 @@ import type { Agent, AuthUser, ChatMessage, ContributorDraft, HealthStatus, Inte
 const mode = import.meta.env.VITE_API_MODE || 'mock';
 const baseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 const timeoutMs = Number(import.meta.env.VITE_API_TIMEOUT_MS || 15000);
+const createId = () => globalThis.crypto?.randomUUID?.() || `msg-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 export class ApiError extends Error {
   status: number;
@@ -85,13 +86,13 @@ export async function sendMessage(agentId: string, content: string, history: Cha
       ? `这部分属于当前公开信息层。正式版会通过项目组 API 接入招聘页、JD 与可信公开来源，并显示日期和来源，不会把新信息伪装成过来人亲历。`
       : `这是 AI 分析层：结合该过来人的经验，你可以把准备拆成“岗位理解 → 业务指标 → 典型 Case → 追问复盘”四层，并针对自己的背景提前准备可量化案例。`;
     await new Promise(r => setTimeout(r, 700));
-    return { id: crypto.randomUUID(), role: 'assistant', content: body, source };
+    return { id: createId(), role: 'assistant', content: body, source };
   }
   const reply = await request<Partial<ChatMessage>>(`/agents/${encodeURIComponent(agentId)}/chat`, { method: 'POST', body: JSON.stringify({ content, messages: history.map(({ role, content: text }) => ({ role, content: text })) }) });
   if (!reply || reply.role !== 'assistant' || typeof reply.content !== 'string' || !reply.content.trim()) {
     throw new ApiError('AI 返回内容格式异常，请重试', 502, 'INVALID_CHAT_RESPONSE');
   }
-  return { id: typeof reply.id === 'string' ? reply.id : crypto.randomUUID(), role: 'assistant', content: reply.content, source: reply.source };
+  return { id: typeof reply.id === 'string' ? reply.id : createId(), role: 'assistant', content: reply.content, source: reply.source };
 }
 
 export async function createContributorDraft(draft: ContributorDraft) {
@@ -111,7 +112,8 @@ export async function interviewTurn(sessionId: string, answer: string, history: 
     await new Promise(r => setTimeout(r, 520));
     return { sessionId: `session-${n}`, question: turns[Math.min(n, turns.length - 1)], done: n >= turns.length - 1, progress: Math.min(100, (n + 1) * 20) };
   }
-  return request(`/interview-sessions/${sessionId}/turn`, { method: 'POST', body: JSON.stringify({ sessionId, answer, messages: history }) });
+  const reply = await request<InterviewTurn & { message?: string }>(`/interview-sessions/${encodeURIComponent(sessionId)}/turn`, { method: 'POST', body: JSON.stringify({ sessionId, message: answer, answer, messages: history }) });
+  return { ...reply, question: reply.question || reply.message || '请继续补充这段面试经历。' };
 }
 
 export async function extractInterview(sessionId: string) {

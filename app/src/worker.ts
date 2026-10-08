@@ -25,7 +25,7 @@ async function aiRequest(request: Request, env: Env, path: string) {
     if (!upstream.ok) return json({ code: 'AI_UPSTREAM_ERROR', message: `QuickRouter returned HTTP ${upstream.status}.` }, 502);
     const result = await upstream.json() as { choices?: { message?: { content?: string } }[] }; const content = result.choices?.[0]?.message?.content?.trim();
     if (!content) return json({ code: 'AI_EMPTY_RESPONSE', message: 'QuickRouter returned an empty response.' }, 502);
-    if (interview) return json({ sessionId: path.split('/')[3] || input.sessionId || 'session-remote', question: content, done: false });
+    if (interview) return json({ sessionId: path.split('/')[3] || input.sessionId || 'session-remote', message: content, question: content, stage: 'questions', progress: 0.5, sessionStatus: 'active', done: false });
     return json({ id: crypto.randomUUID(), role: 'assistant', content, source: 'analysis' });
   } catch { return json({ code: 'AI_UNAVAILABLE', message: 'QuickRouter is temporarily unavailable.' }, 502); }
 }

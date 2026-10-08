@@ -11,6 +11,7 @@ import Interview from './pages/Interview';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import ErrorBoundary from './components/ErrorBoundary';
+import KnowledgeReview from './pages/KnowledgeReview';
 import './styles.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -25,6 +26,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/contribute" element={<Contribute/>}/>
           <Route path="/interview" element={<Interview/>}/>
           <Route path="/dashboard" element={<Dashboard/>}/>
+          <Route path="/knowledge-review" element={<KnowledgeReview/>}/>
           <Route path="/login" element={<Login/>}/>
         </Route>
       </Routes></ErrorBoundary>
