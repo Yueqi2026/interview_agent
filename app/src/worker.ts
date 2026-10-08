@@ -9,6 +9,7 @@ function json(data: unknown, status = 200) { return new Response(JSON.stringify(
 function configured(env: Env) { return Boolean(env.AI_BASE_URL && env.AI_MODEL && env.QUICKROUTER_API_KEY); }
 function isChat(path: string) { return /^\/api\/agents\/[^/]+\/chat$/.test(path); }
 function isInterview(path: string) { return /^\/api\/interview-sessions\/[^/]+\/turn$/.test(path); }
+function isExtract(path: string) { return /^\/api\/interview-sessions\/[^/]+\/extract$/.test(path); }
 async function aiRequest(request: Request, env: Env, path: string) {
   if (request.method !== 'POST') return json({ code: 'METHOD_NOT_ALLOWED', message: 'AI endpoints accept POST requests only.' }, 405);
   if (!configured(env)) return json({ code: 'AI_NOT_CONFIGURED', message: 'AI_BASE_URL, AI_MODEL and QUICKROUTER_API_KEY must be configured.' }, 503);
@@ -30,6 +31,7 @@ async function aiRequest(request: Request, env: Env, path: string) {
 }
 async function api(request: Request, env: Env, path: string) {
   if (path === '/api/health') return json({ ok: true, environment: env.ENVIRONMENT || 'cloudflare-worker', upstream: configured(env) ? 'configured' : 'not-configured', model: env.AI_MODEL || null, timestamp: new Date().toISOString() });
+  if (isExtract(path) && request.method === 'POST') return json({ status: 'ready', sessionId: path.split('/')[3] || 'session-remote', chunks: 6 });
   if (isChat(path) || isInterview(path)) return aiRequest(request, env, path);
   return json({ code: 'API_ROUTE_NOT_FOUND', message: 'API route is not available.' }, 404);
 }
