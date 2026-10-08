@@ -37,7 +37,11 @@ async function request<T>(path: string, init?: RequestInit, retries = 1): Promis
       }
       throw new ApiError(detail?.message || `API request failed (${res.status})`, res.status, detail?.code);
     }
-    return res.json() as Promise<T>;
+    try {
+      return await res.json() as T;
+    } catch {
+      throw new ApiError('服务器返回了无法识别的数据，请稍后重试', 502, 'INVALID_RESPONSE');
+    }
   } catch (err) {
     if ((err as Error).name === 'AbortError') throw new ApiError('请求超时，请稍后重试', 408, 'TIMEOUT');
     throw err;
@@ -83,7 +87,11 @@ export async function sendMessage(agentId: string, content: string, history: Cha
     await new Promise(r => setTimeout(r, 700));
     return { id: crypto.randomUUID(), role: 'assistant', content: body, source };
   }
-  return request<ChatMessage>(`/agents/${agentId}/chat`, { method: 'POST', body: JSON.stringify({ content, messages: history.map(({ role, content: text }) => ({ role, content: text })) }) });
+  const reply = await request<Partial<ChatMessage>>(`/agents/${encodeURIComponent(agentId)}/chat`, { method: 'POST', body: JSON.stringify({ content, messages: history.map(({ role, content: text }) => ({ role, content: text })) }) });
+  if (!reply || reply.role !== 'assistant' || typeof reply.content !== 'string' || !reply.content.trim()) {
+    throw new ApiError('AI 返回内容格式异常，请重试', 502, 'INVALID_CHAT_RESPONSE');
+  }
+  return { id: typeof reply.id === 'string' ? reply.id : crypto.randomUUID(), role: 'assistant', content: reply.content, source: reply.source };
 }
 
 export async function createContributorDraft(draft: ContributorDraft) {

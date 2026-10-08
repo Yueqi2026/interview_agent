@@ -10,12 +10,13 @@ import Contribute from './pages/Contribute';
 import Interview from './pages/Interview';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import ErrorBoundary from './components/ErrorBoundary';
 import './styles.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <Routes>
+      <ErrorBoundary><Routes>
         <Route element={<Layout/>}>
           <Route path="/" element={<Home/>}/>
           <Route path="/discover" element={<Discover/>}/>
@@ -26,7 +27,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/dashboard" element={<Dashboard/>}/>
           <Route path="/login" element={<Login/>}/>
         </Route>
-      </Routes>
+      </Routes></ErrorBoundary>
     </BrowserRouter>
   </React.StrictMode>
 );
