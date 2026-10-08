@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Send, ShieldCheck, Sparkles } from 'lucide-react';
+import { Send, ShieldCheck } from 'lucide-react';
 import { getAgent, sendMessage } from '../services/api';
 import { suggestedQuestions } from '../data/mock';
 import type { Agent, ChatMessage } from '../types';
@@ -8,7 +8,7 @@ import type { Agent, ChatMessage } from '../types';
 export default function Chat() {
   const { id = '' } = useParams(); const [agent, setAgent] = useState<Agent>(); const [input, setInput] = useState(''); const [sending, setSending] = useState(false); const [error, setError] = useState(''); const endRef=useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([{id:'hello', role:'assistant', content:'你好，我是基于过来人授权经验构建的 AI Agent。你可以问我具体面试流程、问题、追问和复盘建议。', source:'experience'}]);
-  useEffect(()=>{ let active=true; getAgent(id).then(value=>{if(active)setAgent(value)}).catch(()=>{if(active)setError('Agent 信息加载失败，请返回探索页重试。')}); return ()=>{active=false}; },[id]); useEffect(()=>endRef.current?.scrollIntoView({behavior:'smooth'}),[messages,sending]);
+  useEffect(()=>{ let active=true; getAgent(id).then(value=>{if(active)setAgent(value)}).catch(()=>{if(active)setError('Agent 信息加载失败，请返回探索页重试。')}); return ()=>{active=false}; },[id]);
   async function submit(e?: FormEvent, preset?: string){ e?.preventDefault(); const text=String(preset ?? input).trim(); if(!text||sending)return; setError(''); const userMessage:ChatMessage={id:`user-${Date.now()}-${Math.random().toString(36).slice(2)}`,role:'user',content:text}; const history=messages.filter(message=>message && typeof message.content==='string'); setMessages(current=>[...current,userMessage]); setInput(''); setSending(true); try{const reply=await sendMessage(id,text,history); if(reply && typeof reply.content==='string') setMessages(current=>[...current,reply]); else setError('AI 返回内容为空，请稍后重试。');}catch(err){setError(err instanceof Error?err.message:'连接暂时不可用，请稍后重试。')}finally{setSending(false);} }
   return <section className="chat-page">
     <aside className="chat-side"><div className={`avatar large ${agent?.gradient||'violet'}`}>{agent?.avatar || 'AI'}</div><h2>{agent?.name || 'Agent'}</h2><p>{agent?.company} · {agent?.role}</p><div className="verified-line"><ShieldCheck size={14}/> 授权经验 Agent</div><div className="divider"/><h4>推荐问题</h4>{suggestedQuestions.map(q=><button type="button" key={q} className="question-chip" disabled={sending} onClick={()=>submit(undefined,q)}>{q}</button>)}</aside>
