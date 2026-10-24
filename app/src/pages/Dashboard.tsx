@@ -1,4 +1,35 @@
-import { useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowRight, BookOpen, CalendarDays, Check, ChevronDown, Eye, EyeOff, Footprints, Pencil, Plus, ShieldCheck, Sparkles } from 'lucide-react';
 import {readKnowledge,saveKnowledge} from '../services/knowledge';
-export default function Dashboard(){const [rows,setRows]=useState(readKnowledge),[error,setError]=useState('');return <section className="page section wide-top"><div className="dashboard-head"><div><div className="eyebrow">MY SPACE</div><h1>我的空间</h1><p className="muted">查看已确认的经验和隐私设置。当前记录保存在本浏览器。</p></div><Link className="btn primary" to="/contribute">添加经验</Link></div>{error&&<p role="alert">{error}</p>}<div className="panel fresh-card"><h3>我的 Agent 知识</h3>{!rows.length&&<p>还没有确认的经验条目，分享经验后会显示在这里。</p>}{rows.map(r=><details className="knowledge-detail" key={r.id}><summary><time>{new Date(r.createdAt).toLocaleString('zh-CN')}</time><strong>{r.title}</strong><span>{r.visible?'已授权展示':'仅自己可见'}</span></summary><div><p className="knowledge-content">{r.content}</p><label className="privacy-control">隐私确认<select value={String(r.visible)} onChange={e=>{const next=rows.map(x=>x.id===r.id?{...x,visible:e.target.value==='true'}:x);try{saveKnowledge(next);setRows(next);setError('')}catch{setError('隐私设置保存失败，请检查浏览器存储。')}}}><option value="true">展示 / 允许 Agent 使用</option><option value="false">不展示 / 仅自己可见</option></select></label></div></details>)}</div></section>}
+import {readSpaceProfile,registerSpaceVisit,saveSpaceProfile} from '../services/community';
+
+export default function Dashboard(){
+  const [rows,setRows]=useState(readKnowledge),[error,setError]=useState(''),[profile,setProfile]=useState(readSpaceProfile),[editing,setEditing]=useState(false);
+  const [name,setName]=useState(profile.name),[bio,setBio]=useState(profile.bio);
+  useEffect(()=>{try{setProfile(registerSpaceVisit())}catch{setError('本地存储不可用，本次修改可能无法保存。')}},[]);
+  const visible=rows.filter(x=>x.visible).length;
+  function editProfile(e:FormEvent){e.preventDefault();try{const next={...profile,name:name.trim(),bio:bio.trim()};saveSpaceProfile(next);setProfile(next);setEditing(false);setError('')}catch{setError('资料保存失败，请检查浏览器存储。')}}
+  function toggle(id:string,value:boolean){const next=rows.map(x=>x.id===id?{...x,visible:value}:x);try{saveKnowledge(next);setRows(next);setError('')}catch{setError('隐私设置保存失败，请重试。')}}
+  return <section className="page space-page wide-top">
+    <div className="space-page-heading"><div className="eyebrow"><Sparkles size={13}/> MY LITTLE CORNER</div><span>我的空间</span></div>
+    <header className="space-profile">
+      <div className="space-profile-cover"><span>每一段经历，都有值得留下的部分。</span><div className="space-cover-orb"/><div className="space-cover-ring"/></div>
+      <div className="space-profile-body">
+        <div className="space-profile-top"><div className="space-avatar">{profile.name==='我的经验主页'?'我':Array.from(profile.name)[0]}<span><Check size={11}/></span></div><button className="btn secondary compact" onClick={()=>{setName(profile.name);setBio(profile.bio);setEditing(v=>!v)}}><Pencil size={14}/> 编辑资料</button></div>
+        <div className="space-profile-info"><div><h1>{profile.name}</h1><p>{profile.bio}</p><div className="space-profile-meta"><span><CalendarDays size={13}/> 入驻于 {new Date(profile.joinedAt).toLocaleDateString('zh-CN')}</span><span><ShieldCheck size={13}/> 经验由你授权</span></div></div><Link to="/contribute" className="btn primary"><Plus size={16}/> 留下一段新经验</Link></div>
+      </div>
+      <div className="space-stats"><div><span><Footprints size={15}/> 空间访问</span><strong>{profile.visits}<small>次</small></strong><p>本浏览器会话访问次数</p></div><div><span><BookOpen size={15}/> 经验条目</span><strong>{rows.length}<small>条</small></strong><p>每一条都是一次积累</p></div><div><span><Eye size={15}/> 允许展示</span><strong>{visible}<small>条</small></strong><p>由你逐项确认的内容</p></div><div><span><ShieldCheck size={15}/> 私人珍藏</span><strong>{rows.length-visible}<small>条</small></strong><p>仅在自己的空间保存</p></div></div>
+    </header>
+    {editing&&<form className="space-edit" onSubmit={editProfile}><h2>编辑个人资料</h2><label>展示名称<input required maxLength={30} value={name} onChange={e=>setName(e.target.value)}/></label><label>一句话介绍<textarea maxLength={140} value={bio} onChange={e=>setBio(e.target.value)}/></label><button className="btn primary" disabled={!name.trim()}>保存资料</button><button type="button" className="btn ghost" onClick={()=>setEditing(false)}>取消</button></form>}
+    {error&&<p className="form-error" role="alert">{error}</p>}
+    <div className="space-section-heading"><div><div className="eyebrow">EXPERIENCE COLLECTION</div><h2>我的经验气泡 <span>{rows.length}</span></h2><p>把片段整理成知识，把分享的边界留给自己。</p></div><Link to="/contribute" className="text-link">添加经验 <ArrowRight size={15}/></Link></div>
+    <div className="experience-bubbles">{rows.map((r,i)=><article className={'experience-bubble '+(r.visible?'is-public':'is-private')} key={r.id}>
+      <div className="experience-bubble-top"><span className="experience-number">{String(i+1).padStart(2,'0')}</span><time><CalendarDays size={12}/>{new Date(r.createdAt).toLocaleDateString('zh-CN')}</time><span className="experience-kind">{r.id.startsWith('demo-')||r.title.includes('虚拟示例')?'虚拟示例':'我的经验'}</span></div>
+      <details><summary><h3>{r.title.replace('【虚拟示例】','')}</h3><span className="experience-expand">查看经验 <ChevronDown size={16}/></span></summary><div className="experience-content">{r.content.split(/\n\s*\n/).map((paragraph,n)=><p key={n}>{paragraph}</p>)}</div></details>
+      <footer className="experience-bubble-footer"><span><ShieldCheck size={13}/>{r.visible?'已允许展示及 Agent 使用':'仅自己可见'}</span><button type="button" role="switch" aria-checked={r.visible} aria-label={r.title+'的展示权限'} className="experience-privacy" onClick={()=>toggle(r.id,!r.visible)}>{r.visible?<Eye size={14}/>:<EyeOff size={14}/>}<span>{r.visible?'展示':'私密'}</span><i/></button></footer>
+    </article>)}</div>
+    {!rows.length&&<div className="space-empty"><BookOpen size={32}/><h3>第一段经验，从这里开始</h3><p>选择访谈或语音，把那些值得记住的细节留下来。</p><Link className="btn primary" to="/contribute">分享经验</Link></div>}
+    <p className="space-local-note"><ShieldCheck size={14}/> 资料、访问和权限目前保存在本浏览器；入驻时间为首次使用本空间的日期。虚拟示例不代表真实经历。</p>
+  </section>
+}
