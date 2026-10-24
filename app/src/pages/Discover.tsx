@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { BriefcaseBusiness, Search, SlidersHorizontal, Sparkles } from 'lucide-react';
 import AgentCard from '../components/AgentCard';
 import { searchAgents } from '../services/api';
 import type { Agent } from '../types';
 
 export default function Discover() {
-  const [q, setQ] = useState(''); const [items, setItems] = useState<Agent[]>([]); const [loading,setLoading]=useState(true);
+  const [params]=useSearchParams(); const [q, setQ] = useState(params.get('q')||''); const [items, setItems] = useState<Agent[]>([]); const [loading,setLoading]=useState(true);
   useEffect(() => { let active=true; setLoading(true); const t=setTimeout(()=>searchAgents(q).then(x=>active&&setItems(x)).finally(()=>active&&setLoading(false)),180); return ()=>{active=false;clearTimeout(t)} }, [q]);
   return <section className="page section wide-top discover-page">
     <div className="discover-hero"><div className="eyebrow"><Sparkles size={13}/> DISCOVER</div><h1>找到与你目标最接近的过来人</h1><p className="muted">搜索公司、岗位、地点或面试类型。Agent 会把真实经历、当前信息和 AI 分析清晰分开。</p>

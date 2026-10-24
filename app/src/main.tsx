@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import ErrorBoundary from './components/ErrorBoundary';
 import KnowledgeReview from './pages/KnowledgeReview';
+import Voice from './pages/Voice';
 import './styles.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -24,6 +25,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/agents/:id" element={<AgentDetail/>}/>
           <Route path="/agents/:id/chat" element={<Chat/>}/>
           <Route path="/contribute" element={<Contribute/>}/>
+          <Route path="/voice" element={<Voice/>}/>
           <Route path="/interview" element={<Interview/>}/>
           <Route path="/dashboard" element={<Dashboard/>}/>
           <Route path="/knowledge-review" element={<KnowledgeReview/>}/>

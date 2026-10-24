@@ -1,13 +1,14 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, BrainCircuit, BriefcaseBusiness, Building2, Compass, MessageCircle, Search, ShieldCheck, Sparkles, UserRoundPlus, WandSparkles, Zap } from 'lucide-react';
 import { agents } from '../data/mock';
 import AgentCard from '../components/AgentCard';
 
-const careerImage='https://images.unsplash.com/photo-1758876020967-e5a80e49463a?auto=format&fit=crop&fm=jpg&q=82&w=1600';
 const workspaceImage='https://images.unsplash.com/photo-1774292476423-c3ee7ea107b9?auto=format&fit=crop&fm=jpg&q=82&w=1600';
 const mentorImage='https://images.unsplash.com/photo-1758873268023-15a6e6d739ed?auto=format&fit=crop&fm=jpg&q=82&w=1200';
 
 export default function Home() {
+  const [q,setQ]=useState(''); const nav=useNavigate();
   return <>
     <section className="hero page hero-v2">
       <div className="hero-glow glow-one"/><div className="hero-glow glow-two"/>
@@ -15,7 +16,7 @@ export default function Home() {
         <div className="pill"><Sparkles size={15}/> 真人经历 × AI Career Intelligence</div>
         <h1>面试之前，先和<br/><span>真正走过这条路的人</span>聊聊。</h1>
         <p className="lead">按公司、岗位、年份和招聘类型找到最相关的“过来人 Agent”。每个回答都区分本人经历、当下公开信息和 AI 分析，让你知道建议从哪里来。</p>
-        <div className="hero-search-preview"><Search size={18}/><span>搜索公司 / 岗位 / 行业，例如“字节 商业化产品 社招”</span><Link to="/discover">搜索 <ArrowRight size={16}/></Link></div>
+        <form className="hero-search-preview" onSubmit={e=>{e.preventDefault();nav('/discover?q='+encodeURIComponent(q))}}><Search size={18}/><input aria-label="搜索过来人" placeholder="搜索公司 / 岗位 / 行业" value={q} onChange={e=>setQ(e.target.value)}/><button>搜索 →</button></form>
         <div className="hero-actions">
           <Link className="btn primary big" to="/discover"><Compass size={18}/> 探索过来人 <ArrowRight size={17}/></Link>
           <Link className="btn secondary big" to="/contribute"><UserRoundPlus size={18}/> 创建我的 Agent</Link>
@@ -23,7 +24,7 @@ export default function Home() {
         <div className="trust-row"><span><ShieldCheck size={16}/> 经本人授权</span><span><BrainCircuit size={16}/> 来源分层</span><span><WandSparkles size={16}/> 知识可编辑、可删除</span></div>
       </div>
       <div className="hero-visual-stack">
-        <div className="hero-photo-frame"><img src={careerImage} alt="职业人士在办公室使用电脑"/><div className="photo-overlay"><span>今日热门方向</span><b>AI 产品 · 商业化 · Consulting</b></div></div>
+        <div className="hero-photo-frame insider-preview"><div className="eyebrow">成为过来人 · 界面示意</div><h2>让你的经历，<br/>成为别人的下一步。</h2><p>① 说出经历 → ② 确认知识 → ③ 逐项授权</p><div className="preview-experience"><b>🎙 语音片段 01 · 已确认</b><p>“那次面试最重要的，是讲清楚指标背后的业务判断……”</p><span>面试复盘与建议 · 自主授权</span></div><Link className="btn primary" to="/contribute">成为过来人 →</Link></div>
         <div className="hero-panel floating-card hero-chat-card">
           <div className="panel-top"><div><span className="live-dot"/> Alice AI</div><span>字节 · 产品</span></div>
           <div className="bubble user">商业化产品二面会追问到什么程度？</div>
