@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowRight, BrainCircuit, BriefcaseBusiness, Building2, Compass, MessageCircle, Search, ShieldCheck, Sparkles, UserRoundPlus, WandSparkles, Zap } from 'lucide-react';
 import { agents } from '../data/mock';
 import AgentCard from '../components/AgentCard';
@@ -8,29 +7,29 @@ const workspaceImage='https://images.unsplash.com/photo-1774292476423-c3ee7ea107
 const mentorImage='https://images.unsplash.com/photo-1758873268023-15a6e6d739ed?auto=format&fit=crop&fm=jpg&q=82&w=1200';
 
 export default function Home() {
-  const [q,setQ]=useState(''); const nav=useNavigate();
+
   return <>
-    <section className="hero page hero-v2">
+    <section className="hero page hero-v2 hero-refined">
       <div className="hero-glow glow-one"/><div className="hero-glow glow-two"/>
       <div className="hero-copy">
         <div className="pill"><Sparkles size={15}/> 真人经历 × AI Career Intelligence</div>
-        <h1>面试之前，先和<br/><span>真正走过这条路的人</span>聊聊。</h1>
+        <h1>面试之前，先和<br/><span>走过这条路的人</span><br/>聊聊。</h1>
         <p className="lead">按公司、岗位、年份和招聘类型找到最相关的“过来人 Agent”。每个回答都区分本人经历、当下公开信息和 AI 分析，让你知道建议从哪里来。</p>
-        <form className="hero-search-preview" onSubmit={e=>{e.preventDefault();nav('/discover?q='+encodeURIComponent(q))}}><Search size={18}/><input aria-label="搜索过来人" placeholder="搜索公司 / 岗位 / 行业" value={q} onChange={e=>setQ(e.target.value)}/><button>搜索 →</button></form>
         <div className="hero-actions">
           <Link className="btn primary big" to="/discover"><Compass size={18}/> 探索过来人 <ArrowRight size={17}/></Link>
           <Link className="btn secondary big" to="/contribute"><UserRoundPlus size={18}/> 创建我的 Agent</Link>
         </div>
         <div className="trust-row"><span><ShieldCheck size={16}/> 经本人授权</span><span><BrainCircuit size={16}/> 来源分层</span><span><WandSparkles size={16}/> 知识可编辑、可删除</span></div>
       </div>
-      <div className="hero-visual-stack">
-        <div className="hero-photo-frame insider-preview"><div className="eyebrow">成为过来人 · 界面示意</div><h2>让你的经历，<br/>成为别人的下一步。</h2><p>① 说出经历 → ② 确认知识 → ③ 逐项授权</p><div className="preview-experience"><b>🎙 语音片段 01 · 已确认</b><p>“那次面试最重要的，是讲清楚指标背后的业务判断……”</p><span>面试复盘与建议 · 自主授权</span></div><Link className="btn primary" to="/contribute">成为过来人 →</Link></div>
-        <div className="hero-panel floating-card hero-chat-card">
-          <div className="panel-top"><div><span className="live-dot"/> Alice AI</div><span>字节 · 产品</span></div>
-          <div className="bubble user">商业化产品二面会追问到什么程度？</div>
-          <div className="bubble ai"><strong>来自 Alice 的真实经历</strong><p>2024 年二面连续追问指标选择、异常定位和业务权衡，不只是背框架。</p></div>
-          <div className="bubble ai analysis"><strong>AI 分析</strong><p>结合当前岗位变化，建议额外准备 AI 商业化与自动化投放场景。</p></div>
-          <Link to="/agents/alice-byte" className="text-link">查看 Alice AI <ArrowRight size={16}/></Link>
+      <div className="insider-showcase" aria-label="经验整理与授权界面示意">
+        <div className="showcase-bar"><span><Sparkles size={17}/> 我的经验工作台</span><span className="showcase-demo">界面示意</span></div>
+        <div className="showcase-body">
+          <div className="eyebrow">BECOME AN INSIDER</div><h2>一次经历，更多可能。</h2><p className="showcase-intro">你来分享，AI 帮你整理。每一步都由你确认。</p>
+          <ol className="showcase-steps"><li className="complete"><span>✓</span>说出经历</li><li className="current"><span>2</span>确认知识</li><li><span>3</span>自主授权</li></ol>
+          <div className="showcase-recording"><div className="recording-icon"><MessageCircle size={20}/></div><div><strong>我的产品面试复盘</strong><small>语音片段 01 · 已确认</small></div><div className="showcase-wave" aria-hidden="true">{[10,22,15,30,20,12,24,17].map((height,i)=><i key={i} style={{height}}/>)}</div></div>
+          <div className="showcase-connector"><WandSparkles size={14}/> 整理为清晰、可复用的知识</div>
+          <article className="showcase-knowledge"><div className="showcase-knowledge-head"><span>经验知识 · 01</span><span><ShieldCheck size={13}/> 由你控制</span></div><h3>指标拆解：先讲清业务判断</h3><p>先明确业务目标，再拆解转化漏斗。比起背框架，更重要的是说明为什么选择这些指标。</p><div className="showcase-permission"><span>● 允许 Agent 使用</span><span className="showcase-switch" aria-label="授权状态示意：开启"/></div></article>
+          <div className="showcase-footer"><span><ShieldCheck size={14}/> 仅使用你确认授权的内容</span><Link to="/contribute">成为过来人 <ArrowRight size={15}/></Link></div>
         </div>
       </div>
     </section>
@@ -64,7 +63,7 @@ export default function Home() {
       <div className="section-head"><div><div className="eyebrow">TWO WAYS TO START</div><h2>你可以来找经验，也可以把经验留下来</h2></div></div>
       <div className="path-grid">
         <Link to="/discover" className="path-card seeker"><div className="path-icon"><Search size={23}/></div><span className="mini-label">FOR CANDIDATES</span><h3>我正在准备面试</h3><p>输入目标公司、岗位、地点或面试类型，找到最相关的过来人并开始聊天。</p><b>查找 Agent <ArrowRight size={16}/></b></Link>
-        <Link to="/contribute" className="path-card insider"><div className="path-icon"><UserRoundPlus size={23}/></div><span className="mini-label">FOR INSIDERS</span><h3>我愿意分享一次经历</h3><p>先填写背景，再接受 AI 访谈。你确认之后，经历才会成为 Agent 可以使用的知识。</p><b>创建 Agent <ArrowRight size={16}/></b></Link>
+        <Link to="/contribute" className="path-card insider"><div className="path-icon"><UserRoundPlus size={23}/></div><span className="mini-label">FOR INSIDERS</span><h3>我愿意分享一次经历</h3><p>选择 AI 访谈或分段语音，讲述自己的经历。确认知识后，再逐项决定是否授权。</p><b>创建 Agent <ArrowRight size={16}/></b></Link>
       </div>
     </section>
 

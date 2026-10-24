@@ -14,6 +14,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import KnowledgeReview from './pages/KnowledgeReview';
 import Voice from './pages/Voice';
 import './styles.css';
+import './home-refined.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
