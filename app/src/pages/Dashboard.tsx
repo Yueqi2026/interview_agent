@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, CalendarDays, Check, ChevronDown, Eye, EyeOff, Footprints, Pencil, Plus, ShieldCheck, Sparkles } from 'lucide-react';
 import {readKnowledge,saveKnowledge} from '../services/knowledge';
 import {readSpaceProfile,registerSpaceVisit,saveSpaceProfile} from '../services/community';
+import {listConversations} from '../services/conversations';
+import {MessageCircle, Clock3} from 'lucide-react';
 
 export default function Dashboard(){
   const [rows,setRows]=useState(readKnowledge),[error,setError]=useState(''),[profile,setProfile]=useState(readSpaceProfile),[editing,setEditing]=useState(false);
   const [name,setName]=useState(profile.name),[bio,setBio]=useState(profile.bio);
+  const [conversations]=useState(()=>{try{return listConversations()}catch{return []}});
   useEffect(()=>{try{setProfile(registerSpaceVisit())}catch{setError('本地存储不可用，本次修改可能无法保存。')}},[]);
   const visible=rows.filter(x=>x.visible).length;
   function editProfile(e:FormEvent){e.preventDefault();try{const next={...profile,name:name.trim(),bio:bio.trim()};saveSpaceProfile(next);setProfile(next);setEditing(false);setError('')}catch{setError('资料保存失败，请检查浏览器存储。')}}
@@ -30,6 +33,18 @@ export default function Dashboard(){
       <footer className="experience-bubble-footer"><span><ShieldCheck size={13}/>{r.visible?'已允许展示及 Agent 使用':'仅自己可见'}</span><button type="button" role="switch" aria-checked={r.visible} aria-label={r.title+'的展示权限'} className="experience-privacy" onClick={()=>toggle(r.id,!r.visible)}>{r.visible?<Eye size={14}/>:<EyeOff size={14}/>}<span>{r.visible?'展示':'私密'}</span><i/></button></footer>
     </article>)}</div>
     {!rows.length&&<div className="space-empty"><BookOpen size={32}/><h3>第一段经验，从这里开始</h3><p>选择访谈或语音，把那些值得记住的细节留下来。</p><Link className="btn primary" to="/contribute">分享经验</Link></div>}
-    <p className="space-local-note"><ShieldCheck size={14}/> 资料、访问和权限目前保存在本浏览器；入驻时间为首次使用本空间的日期。虚拟示例不代表真实经历。</p>
+    <section className="explored-insiders" aria-label="我探索过的过来人">
+      <div className="space-section-heading"><div><div className="eyebrow">PEOPLE I'VE MET</div><h2>我探索过的过来人 <span>{conversations.length}</span></h2><p>上次没聊完的，这次接着聊。按最近对话排序。</p></div><Link to="/discover" className="text-link">发现更多 <ArrowRight size={15}/></Link></div>
+      {conversations.length?<div className="explored-grid">{conversations.map(conversation=>{
+        const last=conversation.messages.filter(m=>m.id!=='hello').at(-1);
+        return <Link className="explored-card" key={conversation.agentId} to={'/agents/'+encodeURIComponent(conversation.agentId)+'/chat'}>
+          <div className="explored-card-top"><div className={'avatar agent-avatar '+(conversation.agent.gradient||'violet')}>{conversation.agent.avatar}</div><div className="explored-identity"><h3>{conversation.agent.name}</h3><p>{conversation.agent.company} · {conversation.agent.role}</p></div><ArrowRight size={17}/></div>
+          <div className="explored-preview"><span>{last?.role==='user'?'我':'Agent'}：</span>{last?.content}</div>
+          <div className="explored-card-bottom"><span><Clock3 size={12}/>{new Date(conversation.updatedAt).toLocaleString('zh-CN',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span><span><MessageCircle size={12}/>{conversation.messages.filter(m=>m.id!=='hello').length} 条消息</span><b>继续对话</b></div>
+        </Link>
+      })}</div>:<div className="space-empty explored-empty"><MessageCircle size={30}/><h3>还没有开始的对话</h3><p>与一位过来人聊聊后，就能在这里找回对话、继续探索。</p><Link className="btn secondary" to="/discover">探索过来人 <ArrowRight size={15}/></Link></div>}
+      <p className="explored-storage-note">对话历史保存在当前浏览器。接入此功能前未保存的旧对话无法找回。</p>
+    </section>
+    <p className="space-local-note"><ShieldCheck size={14}/> 资料、对话、访问和权限目前保存在本浏览器；入驻时间为首次使用本空间的日期。虚拟示例不代表真实经历。</p>
   </section>
 }
