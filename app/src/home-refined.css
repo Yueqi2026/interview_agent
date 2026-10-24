@@ -11,3 +11,36 @@
 @media(max-width:1050px) and (min-width:901px){.hero-refined{gap:30px}.showcase-body{padding:20px}.hero-refined h1{font-size:48px}.showcase-wave{display:none}}
 @media(max-width:900px){.hero-refined{grid-template-columns:1fr;gap:42px;padding-top:125px;padding-bottom:54px}.hero-refined .hero-copy{max-width:620px}.hero-refined h1{font-size:54px}.insider-showcase{width:100%;max-width:560px;justify-self:center}}
 @media(max-width:620px){.hero-refined{padding-top:116px;gap:32px}.hero-refined h1{font-size:clamp(34px,9vw,46px);line-height:1.2}.hero-refined .lead{font-size:14px;line-height:1.8}.hero-refined .pill{font-size:10px}.hero-refined .hero-actions{flex-direction:row}.hero-refined .hero-actions .btn{width:auto;flex:1;padding:13px 10px;font-size:12px;white-space:nowrap}.hero-refined .trust-row{gap:10px;font-size:10px}.insider-showcase{border-radius:18px}.showcase-bar{padding:13px 17px}.showcase-body{padding:20px}.showcase-body h2{font-size:23px}.showcase-recording{padding:12px;gap:8px}.showcase-wave{gap:2px}.showcase-knowledge{padding:16px}.showcase-steps{gap:5px}.showcase-footer{gap:8px}.showcase-footer>span{font-size:8px}}
+/* Homepage contains only the core scene, with the fixed navigation budgeted above it. */
+.home-shell{min-height:100svh}
+.home-shell>.route-enter{min-height:100svh}
+.home-shell .hero-refined{min-height:100svh;padding-top:110px;padding-bottom:28px;gap:clamp(28px,4vw,62px)}
+@media(min-width:901px) and (max-height:800px){
+.home-shell .hero-refined{padding-top:102px;padding-bottom:22px}
+.home-shell .hero-refined h1{font-size:clamp(40px,4.3vw,58px);margin:18px 0}
+.home-shell .hero-refined .lead{font-size:15px;line-height:1.8}
+.home-shell .hero-actions{margin:24px 0 18px}
+.home-shell .showcase-body{padding:20px 24px}
+.home-shell .showcase-bar{padding:13px 22px}
+.home-shell .showcase-steps{margin:17px 0}
+.home-shell .showcase-knowledge{padding:16px}
+.home-shell .showcase-footer{margin-top:17px}
+}
+@media(min-width:901px) and (max-height:650px){
+.home-shell .hero-refined{padding-top:96px;padding-bottom:16px}
+.home-shell .hero-refined h1{font-size:40px;margin:14px 0}
+.home-shell .hero-refined .lead{font-size:13px}
+.home-shell .showcase-body{padding:15px 20px}
+.home-shell .showcase-body h2{font-size:22px;margin:8px 0}
+.home-shell .showcase-steps{margin:13px 0}
+.home-shell .showcase-recording{padding:10px}
+.home-shell .showcase-connector{margin:10px 0}
+.home-shell .showcase-knowledge{padding:13px}
+.home-shell .showcase-knowledge h3{margin:8px 0}
+.home-shell .showcase-permission{margin-top:10px;padding-top:10px}
+.home-shell .showcase-footer{margin-top:13px}
+}
+@media(max-width:900px){
+.home-shell .hero-refined{padding-top:112px;padding-bottom:30px;gap:30px}
+}
+@media(prefers-reduced-motion:reduce){.home-shell>.route-enter{animation:none}}

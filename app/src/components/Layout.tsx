@@ -9,7 +9,7 @@ export default function Layout() {
   useEffect(()=>setOpen(false),[location.pathname]);
   const hideChrome=location.pathname==='/login';
   if(hideChrome) return <Outlet/>;
-  return <div className="app-shell">
+  return <div className={location.pathname==='/'?'app-shell home-shell':'app-shell'}>
     <header className="topbar glass-nav">
       <Link className="brand" to="/"><span className="brand-mark"><Sparkles size={17}/></span><span>过来人 <b>AI</b></span></Link>
       <nav className={open?'open':''}>
@@ -24,6 +24,6 @@ export default function Layout() {
       </div>
     </header>
     <main key={location.pathname} className="route-enter"><Outlet/></main>
-    <footer><span>过来人 AI · Experience-powered career intelligence</span><span>v{APP_VERSION}</span></footer>
+    {location.pathname!=='/'&&<footer><span>过来人 AI · Experience-powered career intelligence</span><span>v{APP_VERSION}</span></footer>}
   </div>
 }

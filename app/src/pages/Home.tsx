@@ -1,10 +1,6 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, BrainCircuit, BriefcaseBusiness, Building2, Compass, MessageCircle, Search, ShieldCheck, Sparkles, UserRoundPlus, WandSparkles, Zap } from 'lucide-react';
-import { agents } from '../data/mock';
-import AgentCard from '../components/AgentCard';
+import { ArrowRight, BrainCircuit, Compass, MessageCircle, ShieldCheck, Sparkles, UserRoundPlus, WandSparkles } from 'lucide-react';
 
-const workspaceImage='https://images.unsplash.com/photo-1774292476423-c3ee7ea107b9?auto=format&fit=crop&fm=jpg&q=82&w=1600';
-const mentorImage='https://images.unsplash.com/photo-1758873268023-15a6e6d739ed?auto=format&fit=crop&fm=jpg&q=82&w=1200';
 
 export default function Home() {
 
@@ -34,43 +30,5 @@ export default function Home() {
       </div>
     </section>
 
-    <section className="page proof-bar">
-      <div><b>4 类来源</b><span>亲历 / 公开信息 / AI 分析 / 用户上下文</span></div>
-      <div><b>可追溯</b><span>回答标记来源与经验年份，避免“AI 假装亲历”</span></div>
-      <div><b>双向价值</b><span>求职者获得经验，贡献者沉淀可复用的数字经验资产</span></div>
-    </section>
-
-    <section className="page section">
-      <div className="section-head"><div><div className="eyebrow">FEATURED INSIDERS</div><h2>先看看，谁真正走过你的目标路径</h2><p className="muted">不是匿名帖子，而是按经历结构化的可对话 Agent。</p></div><Link to="/discover" className="text-link">查看全部 <ArrowRight size={16}/></Link></div>
-      <div className="agent-list home-agent-list">{agents.slice(0,4).map(a=><AgentCard key={a.id} agent={a}/>)}</div>
-    </section>
-
-    <section className="story-section">
-      <div className="page story-grid">
-        <div className="story-image"><img src={mentorImage} alt="职业人士在工作环境中使用电脑"/><div className="image-caption"><Sparkles size={14}/><span>经验不是一篇帖子，而是一套可继续追问的上下文。</span></div></div>
-        <div className="story-copy"><div className="eyebrow">WHY IT FEELS DIFFERENT</div><h2>AI 不替过来人“编经验”，而是把经验组织得更有用。</h2><p className="muted">传统面经往往缺少上下文：什么年份、什么级别、为什么被追问、候选人当时怎么回答。这里先用 AI 访谈补齐这些信息，再由贡献者逐条确认。</p>
-          <div className="detail-list">
-            <div><span className="detail-icon"><MessageCircle size={18}/></span><div><b>连续追问，而不是一次性投稿</b><p>围绕面试轮次、原始问题、回答、追问、复盘和建议形成结构化经历。</p></div></div>
-            <div><span className="detail-icon"><ShieldCheck size={18}/></span><div><b>贡献者保留控制权</b><p>可隐藏知识条目、撤销授权或删除资料，私人身份信息不进入 Agent Retrieval。</p></div></div>
-            <div><span className="detail-icon"><Zap size={18}/></span><div><b>经验和“现在”分开</b><p>历史亲历不会被伪装成最新事实；最新 JD、组织变化和行业动态进入单独的实时信息层。</p></div></div>
-          </div>
-          <Link to="/contribute" className="btn primary big">成为过来人 <ArrowRight size={17}/></Link>
-        </div>
-      </div>
-    </section>
-
-    <section className="page section">
-      <div className="section-head"><div><div className="eyebrow">TWO WAYS TO START</div><h2>你可以来找经验，也可以把经验留下来</h2></div></div>
-      <div className="path-grid">
-        <Link to="/discover" className="path-card seeker"><div className="path-icon"><Search size={23}/></div><span className="mini-label">FOR CANDIDATES</span><h3>我正在准备面试</h3><p>输入目标公司、岗位、地点或面试类型，找到最相关的过来人并开始聊天。</p><b>查找 Agent <ArrowRight size={16}/></b></Link>
-        <Link to="/contribute" className="path-card insider"><div className="path-icon"><UserRoundPlus size={23}/></div><span className="mini-label">FOR INSIDERS</span><h3>我愿意分享一次经历</h3><p>选择 AI 访谈或分段语音，讲述自己的经历。确认知识后，再逐项决定是否授权。</p><b>创建 Agent <ArrowRight size={16}/></b></Link>
-      </div>
-    </section>
-
-    <section className="visual-band">
-      <div className="page visual-band-grid"><div><div className="eyebrow light">INTERVIEW INTELLIGENCE</div><h2>最终，不只是“问一个人”。</h2><p>当经验积累起来，平台可以逐步回答：过去半年某岗位常问什么、哪些能力权重正在变化、哪一个时间点最值得准备。</p><div className="role-pills"><span><Building2 size={14}/> 公司</span><span><BriefcaseBusiness size={14}/> 岗位</span><span>年份</span><span>面试轮次</span><span>主题</span></div></div><div className="visual-photo"><img src={workspaceImage} alt="现代职业学习工作台"/></div></div>
-    </section>
-
-    <section className="page section cta-band cta-band-v2"><div><div className="eyebrow light">READY WHEN YOU ARE</div><h2>下一次面试，不必从零开始。</h2><p>先找到一个与你足够相似的经历，再让 AI 帮你把信息转化成自己的准备策略。</p></div><div className="cta-actions"><Link className="btn light big" to="/discover">探索过来人 <ArrowRight size={17}/></Link><Link className="btn glass-light big" to="/contribute">创建我的 Agent</Link></div></section>
   </>;
 }
