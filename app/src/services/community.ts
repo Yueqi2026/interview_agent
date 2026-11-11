@@ -21,8 +21,6 @@ export function readSpaceProfile():SpaceProfile {
   try {
     const saved=JSON.parse(localStorage.getItem('guolairen.profile')||'null');
     if(saved&&typeof saved.name==='string'&&typeof saved.bio==='string'&&typeof saved.joinedAt==='string'&&Number.isFinite(saved.visits))return saved;
-    const user=JSON.parse(localStorage.getItem('demoUser')||'null');
-    if(typeof user?.name==='string')fallback.name=user.name;
   }catch{/* use safe profile */}
   return fallback;
 }

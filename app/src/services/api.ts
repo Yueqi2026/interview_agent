@@ -1,5 +1,5 @@
 import { agents } from '../data/mock';
-import type { Agent, AuthUser, ChatMessage, ContributorDraft, HealthStatus, InterviewTurn } from '../types';
+import type { Agent, ChatMessage, ContributorDraft, HealthStatus, InterviewTurn } from '../types';
 
 const mode = import.meta.env.VITE_API_MODE || 'mock';
 const baseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -54,14 +54,6 @@ async function request<T>(path: string, init?: RequestInit, retries = 1): Promis
 export async function health(): Promise<HealthStatus> {
   if (mode === 'mock') return { ok: true, environment: 'mock', timestamp: new Date().toISOString() };
   return request<HealthStatus>('/health', undefined, 0);
-}
-
-export async function signIn(email: string): Promise<{ user: AuthUser; token?: string }> {
-  if (mode === 'mock') {
-    await new Promise(r => setTimeout(r, 650));
-    return { user: { id: 'demo-user', name: email.split('@')[0] || 'Demo User', email } };
-  }
-  return request('/auth/login', { method: 'POST', body: JSON.stringify({ email }) }, 0);
 }
 
 export async function searchAgents(query = ''): Promise<Agent[]> {

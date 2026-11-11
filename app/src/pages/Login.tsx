@@ -1,11 +1,12 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { ArrowRight, Check, LockKeyhole, Mail, ShieldCheck, Sparkles } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { signIn } from '../services/api';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthProvider';
 
 export default function Login(){
-  const [email,setEmail]=useState(''); const [loading,setLoading]=useState(false); const [error,setError]=useState(''); const nav=useNavigate();
-  async function submit(e:FormEvent){e.preventDefault(); if(!email)return; setError('');setLoading(true); try{const r=await signIn(email); localStorage.setItem('demoUser',JSON.stringify(r.user)); nav('/discover');}catch(err){setError((err as Error).message)}finally{setLoading(false)}}
+  const [email,setEmail]=useState(''); const [loading,setLoading]=useState(false); const [error,setError]=useState(''); const [sentTo,setSentTo]=useState(''); const nav=useNavigate(); const location=useLocation(); const { user, ready, configured, sendMagicLink }=useAuth();
+  useEffect(()=>{if(ready&&user) nav((location.state as {from?:string}|null)?.from||'/discover',{replace:true})},[location.state,nav,ready,user]);
+  async function submit(e:FormEvent){e.preventDefault(); if(!email)return; setError('');setLoading(true); try{await sendMagicLink(email.trim());setSentTo(email.trim())}catch(err){setError((err as Error).message)}finally{setLoading(false)}}
   return <section className="login-page">
     <div className="login-brand-panel">
       <Link className="brand login-brand" to="/"><span className="brand-mark"><Sparkles size={17}/></span><span>过来人 <b>AI</b></span></Link>
@@ -14,9 +15,9 @@ export default function Login(){
     </div>
     <div className="login-form-panel">
       <div className="login-card fresh-card"><div className="mobile-brand"><span className="brand-mark"><Sparkles size={16}/></span> 过来人 AI</div><div className="login-kicker">欢迎回来</div><h2>登录或创建账号</h2><p className="muted">继续探索与你目标最接近的真实经验 Agent。</p>
-        <form onSubmit={submit}><label className="field-label">邮箱</label><div className="input-icon"><Mail size={18}/><input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></div>{error&&<div className="form-error">{error}</div>}<button className="btn primary full big" disabled={loading}>{loading?<span className="loader"/>:<><span>使用邮箱继续</span><ArrowRight size={18}/></>}</button></form>
+        {sentTo?<div className="privacy-note"><ShieldCheck size={16}/><span>登录链接已发送至 {sentTo}。请在邮件中点击链接返回网站；链接仅可使用一次。</span></div>:<form onSubmit={submit}><label className="field-label">邮箱</label><div className="input-icon"><Mail size={18}/><input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></div>{error&&<div className="form-error">{error}</div>}{!configured&&<div className="form-error">登录服务正在配置中，请稍后再试。</div>}<button className="btn primary full big" disabled={loading||!configured}>{loading?<span className="loader"/>:<><span>发送登录链接</span><ArrowRight size={18}/></>}</button></form>}
         <div className="or"><span/>或<span/></div><button className="btn secondary full big oauth-btn"><span className="oauth-dot">微</span> 使用微信继续</button>
-        <p className="terms">继续即代表你同意服务条款与隐私说明。正式版建议使用 OAuth / Magic Link，不在前端保存明文密码。</p>
+        <p className="terms">我们不会保存明文密码。邮箱链接仅用于本次登录验证。</p>
         <div className="privacy-note"><ShieldCheck size={16}/> 登录身份数据与 Agent Knowledge 分层隔离。</div>
         <Link className="text-link center" to="/">先返回首页体验</Link>
       </div>

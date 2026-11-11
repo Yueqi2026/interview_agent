@@ -1,10 +1,8 @@
-node_modules/
-.wrangler/
-dist/
 .env
-.env.*
-!.env.example
-.dev.vars
+.env.local
+.env.*.local
+dist
+node_modules
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts
