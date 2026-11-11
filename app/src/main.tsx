@@ -14,6 +14,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import KnowledgeReview from './pages/KnowledgeReview';
 import Voice from './pages/Voice';
 import AuthCallback from './pages/AuthCallback';
+import AuthConfirm from './pages/AuthConfirm';
 import { AuthProvider } from './auth/AuthProvider';
 import { RequireAuth } from './auth/RequireAuth';
 import './styles.css';
@@ -35,6 +36,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/dashboard" element={<RequireAuth><Dashboard/></RequireAuth>}/>
           <Route path="/knowledge-review" element={<RequireAuth><KnowledgeReview/></RequireAuth>}/>
           <Route path="/login" element={<Login/>}/>
+          <Route path="/auth/confirm" element={<AuthConfirm/>}/>
           <Route path="/auth/callback" element={<AuthCallback/>}/>
         </Route>
       </Routes></ErrorBoundary>
