@@ -1,19 +1,23 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, BookOpen, CalendarDays, Check, ChevronDown, Eye, EyeOff, Footprints, Pencil, Plus, ShieldCheck, Sparkles } from 'lucide-react';
-import {readKnowledge,saveKnowledge} from '../services/knowledge';
 import {readSpaceProfile,registerSpaceVisit,saveSpaceProfile} from '../services/community';
 import {listConversations} from '../services/conversations';
 import {MessageCircle, Clock3} from 'lucide-react';
+import { listExperienceItems, listMyAgents, updateExperienceItemPermission, type ExperienceAgent, type ExperienceItem } from '../services/experienceStore';
 
 export default function Dashboard(){
-  const [rows,setRows]=useState(readKnowledge),[error,setError]=useState(''),[profile,setProfile]=useState(readSpaceProfile),[editing,setEditing]=useState(false);
+  const [rows,setRows]=useState<ExperienceItem[]>([]),[agents,setAgents]=useState<ExperienceAgent[]>([]),[activeAgentId,setActiveAgentId]=useState(''),[loading,setLoading]=useState(true),[error,setError]=useState(''),[profile,setProfile]=useState(readSpaceProfile),[editing,setEditing]=useState(false);
+  const [searchParams] = useSearchParams();
   const [name,setName]=useState(profile.name),[bio,setBio]=useState(profile.bio);
   const [conversations]=useState(()=>{try{return listConversations()}catch{return []}});
   useEffect(()=>{try{setProfile(registerSpaceVisit())}catch{setError('本地存储不可用，本次修改可能无法保存。')}},[]);
-  const visible=rows.filter(x=>x.visible).length;
+  const visible=rows.filter(x=>x.agentUsageAllowed).length;
+  const activeAgent=agents.find(agent=>agent.id===activeAgentId);
+  useEffect(()=>{void (async()=>{try{setLoading(true);const mine=await listMyAgents();setAgents(mine);const requested=searchParams.get('agent');const next=mine.some(agent=>agent.id===requested)?requested||'':mine[0]?.id||'';setActiveAgentId(next);if(!next)setRows([]);}catch(e){setError((e as Error).message||'加载 Agent 失败，请刷新重试。')}finally{setLoading(false)}})()},[searchParams]);
+  useEffect(()=>{if(!activeAgentId)return;void (async()=>{try{setLoading(true);setRows(await listExperienceItems(activeAgentId));}catch(e){setError((e as Error).message||'加载经验条目失败，请刷新重试。')}finally{setLoading(false)}})()},[activeAgentId]);
   function editProfile(e:FormEvent){e.preventDefault();try{const next={...profile,name:name.trim(),bio:bio.trim()};saveSpaceProfile(next);setProfile(next);setEditing(false);setError('')}catch{setError('资料保存失败，请检查浏览器存储。')}}
-  function toggle(id:string,value:boolean){const next=rows.map(x=>x.id===id?{...x,visible:value}:x);try{saveKnowledge(next);setRows(next);setError('')}catch{setError('隐私设置保存失败，请重试。')}}
+  async function toggle(item:ExperienceItem,value:boolean){try{const updated=await updateExperienceItemPermission(item,value);setRows(rows=>rows.map(row=>row.id===item.id?updated:row));setError('')}catch(e){setError((e as Error).message||'隐私设置保存失败，请重试。')}}
   return <section className="page space-page wide-top">
     <div className="space-page-heading"><div className="eyebrow"><Sparkles size={13}/> MY LITTLE CORNER</div><span>我的空间</span></div>
     <header className="space-profile">
@@ -26,13 +30,14 @@ export default function Dashboard(){
     </header>
     {editing&&<form className="space-edit" onSubmit={editProfile}><h2>编辑个人资料</h2><label>展示名称<input required maxLength={30} value={name} onChange={e=>setName(e.target.value)}/></label><label>一句话介绍<textarea maxLength={140} value={bio} onChange={e=>setBio(e.target.value)}/></label><button className="btn primary" disabled={!name.trim()}>保存资料</button><button type="button" className="btn ghost" onClick={()=>setEditing(false)}>取消</button></form>}
     {error&&<p className="form-error" role="alert">{error}</p>}
-    <div className="space-section-heading"><div><div className="eyebrow">EXPERIENCE COLLECTION</div><h2>我的经验气泡 <span>{rows.length}</span></h2><p>把片段整理成知识，把分享的边界留给自己。</p></div><Link to="/contribute" className="text-link">添加经验 <ArrowRight size={15}/></Link></div>
-    <div className="experience-bubbles">{rows.map((r,i)=><article className={'experience-bubble '+(r.visible?'is-public':'is-private')} key={r.id}>
-      <div className="experience-bubble-top"><span className="experience-number">{String(i+1).padStart(2,'0')}</span><time><CalendarDays size={12}/>{new Date(r.createdAt).toLocaleDateString('zh-CN')}</time><span className="experience-kind">{r.id.startsWith('demo-')||r.title.includes('虚拟示例')?'虚拟示例':'我的经验'}</span></div>
+    <div className="space-section-heading"><div><div className="eyebrow">EXPERIENCE COLLECTION</div><h2>{activeAgent?`${activeAgent.name} 的经验`: '我的经验气泡'} <span>{rows.length}</span></h2><p>把片段整理成知识，把分享的边界留给自己。</p></div><Link to="/contribute" className="text-link">添加经验 <ArrowRight size={15}/></Link></div>
+    {agents.length>0&&<label className="space-edit">当前编辑的 Agent<select value={activeAgentId} onChange={e=>setActiveAgentId(e.target.value)}>{agents.map(agent=><option value={agent.id} key={agent.id}>{agent.name}（{agent.status==='draft'?'草稿':'已发布'}）</option>)}</select></label>}
+    <div className="experience-bubbles">{rows.map((r,i)=><article className={'experience-bubble '+(r.agentUsageAllowed?'is-public':'is-private')} key={r.id}>
+      <div className="experience-bubble-top"><span className="experience-number">{String(i+1).padStart(2,'0')}</span><time><CalendarDays size={12}/>{new Date(r.createdAt).toLocaleDateString('zh-CN')}</time><span className="experience-kind">我的经验</span></div>
       <details><summary><h3>{r.title.replace('【虚拟示例】','')}</h3><span className="experience-expand">查看经验 <ChevronDown size={16}/></span></summary><div className="experience-content">{r.content.split(/\n\s*\n/).map((paragraph,n)=><p key={n}>{paragraph}</p>)}</div></details>
-      <footer className="experience-bubble-footer"><span><ShieldCheck size={13}/>{r.visible?'已允许展示及 Agent 使用':'仅自己可见'}</span><button type="button" role="switch" aria-checked={r.visible} aria-label={r.title+'的展示权限'} className="experience-privacy" onClick={()=>toggle(r.id,!r.visible)}>{r.visible?<Eye size={14}/>:<EyeOff size={14}/>}<span>{r.visible?'展示':'私密'}</span><i/></button></footer>
+      <footer className="experience-bubble-footer"><span><ShieldCheck size={13}/>{r.agentUsageAllowed?'已允许 Agent 使用':'仅自己可见'}</span><button type="button" role="switch" aria-checked={r.agentUsageAllowed} aria-label={r.title+'的 Agent 使用权限'} className="experience-privacy" onClick={()=>void toggle(r,!r.agentUsageAllowed)}>{r.agentUsageAllowed?<Eye size={14}/>:<EyeOff size={14}/>}<span>{r.agentUsageAllowed?'已授权':'私密'}</span><i/></button></footer>
     </article>)}</div>
-    {!rows.length&&<div className="space-empty"><BookOpen size={32}/><h3>第一段经验，从这里开始</h3><p>选择访谈或语音，把那些值得记住的细节留下来。</p><Link className="btn primary" to="/contribute">分享经验</Link></div>}
+    {!loading&&!rows.length&&<div className="space-empty"><BookOpen size={32}/><h3>{agents.length?'这个 Agent 还没有经验条目':'第一段经验，从这里开始'}</h3><p>创建 Agent 后，通过文字或语音把那些值得记住的细节留下来。</p><Link className="btn primary" to="/contribute">分享经验</Link></div>}
     <section className="explored-insiders" aria-label="我探索过的过来人">
       <div className="space-section-heading"><div><div className="eyebrow">PEOPLE I'VE MET</div><h2>我探索过的过来人 <span>{conversations.length}</span></h2><p>上次没聊完的，这次接着聊。按最近对话排序。</p></div><Link to="/discover" className="text-link">发现更多 <ArrowRight size={15}/></Link></div>
       {conversations.length?<div className="explored-grid">{conversations.map(conversation=>{
@@ -45,6 +50,6 @@ export default function Dashboard(){
       })}</div>:<div className="space-empty explored-empty"><MessageCircle size={30}/><h3>还没有开始的对话</h3><p>与一位过来人聊聊后，就能在这里找回对话、继续探索。</p><Link className="btn secondary" to="/discover">探索过来人 <ArrowRight size={15}/></Link></div>}
       <p className="explored-storage-note">对话历史保存在当前浏览器。接入此功能前未保存的旧对话无法找回。</p>
     </section>
-    <p className="space-local-note"><ShieldCheck size={14}/> 资料、对话、访问和权限目前保存在本浏览器；入驻时间为首次使用本空间的日期。虚拟示例不代表真实经历。</p>
+    <p className="space-local-note"><ShieldCheck size={14}/> 经验条目和 Agent 使用权限已保存到你的账号，并由数据库按 Agent 严格隔离；个人资料、访问次数和旧版对话仍暂存于本浏览器。</p>
   </section>
 }
