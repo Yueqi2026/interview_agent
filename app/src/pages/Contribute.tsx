@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mic, PenLine, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Check, ShieldCheck } from 'lucide-react';
 import { createExperienceAgent } from '../services/experienceStore';
 
 export default function Contribute() {
@@ -25,21 +25,35 @@ export default function Contribute() {
     }
   }
 
-  return <section className="page section narrow wide-top">
-    <div className="eyebrow">CREATE YOUR EXPERIENCE AGENT</div>
-    <h1>先创建这段经验对应的 Agent</h1>
-    <p className="lead">一位 Agent 对应一组独立的经验。之后写入的每个条目都会只属于它，不会与其他 Agent 混在一起。</p>
-    <form className="panel fresh-card" onSubmit={createAgent}>
-      <label>Agent 名称<input required maxLength={120} value={name} onChange={e => setName(e.target.value)} placeholder="例如：互联网产品经理面试经验" /></label>
-      <label>一句话说明（选填）<textarea maxLength={2000} value={description} onChange={e => setDescription(e.target.value)} placeholder="例如：记录我在产品岗位求职中的面试流程、案例题和复盘。" /></label>
+  return <section className="page section narrow wide-top agent-create-page">
+    <header className="agent-create-heading">
+      <div className="eyebrow">创建经验 Agent</div>
+      <h1>为这一段经历留一处独立空间</h1>
+      <p>Agent 是经验的归属单位。每个 Agent 下的条目、隐私设置和未来回答都会彼此独立。</p>
+    </header>
+    <form className="agent-create-form" onSubmit={createAgent} data-ui>
+      <div className="agent-create-form-head">
+        <div><h2>Agent 信息</h2><p>先写一个便于自己辨认的名称；它不会自动公开。</p></div>
+        <span className="agent-draft-badge">草稿</span>
+      </div>
+      <div className="agent-fields">
+        <label className="agent-field"><span>Agent 名称 <b>必填</b></span><input required maxLength={120} value={name} onChange={e => setName(e.target.value)} placeholder="例如：互联网产品经理面试经验" /><small>建议用「行业 / 岗位 / 经历主题」命名，之后更容易管理。</small></label>
+        <label className="agent-field"><span>经验简介 <em>选填</em></span><textarea maxLength={2000} value={description} onChange={e => setDescription(e.target.value)} placeholder="例如：记录我在产品岗位求职中的面试流程、案例题和复盘。" /><small>只作你自己的管理说明，之后可以修改。</small></label>
+      </div>
+      <div className="agent-create-footer">
+        <div className="agent-create-privacy"><ShieldCheck size={17}/><span>现在只创建归属关系；任何经验内容都要等你逐条确认后才会保存。</span></div>
+        <button className="btn primary" disabled={saving || !name.trim()}>{saving ? '正在创建…' : <>创建并开始录入 <ArrowRight size={16}/></>}</button>
+      </div>
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="btn primary" disabled={saving || !name.trim()}>{saving ? '正在创建…' : '创建并开始录入'}</button>
     </form>
-    <div className="consent-preview"><ShieldCheck size={18}/><span>这一步只建立归属关系，不会保存任何未确认的经验原文。</span></div>
-    <div className="path-grid">
-      <div className="path-card"><Mic size={20}/><h2>语音或文字输入</h2><p>可分段录音，也可直接粘贴或输入文字；确认后由 AI 整理成条目。</p></div>
-      <div className="path-card insider"><PenLine size={20}/><h2>逐条隐私确认</h2><p>每一条都由你决定是否允许该 Agent 使用；未授权条目始终仅自己可见。</p></div>
-    </div>
-    <p className="muted">已经有 Agent？请到 <Link to="/dashboard">我的空间</Link> 继续编辑已有条目。</p>
+    <section className="agent-next-steps" aria-labelledby="next-steps-title">
+      <div><h2 id="next-steps-title">创建后，你将完成这三件事</h2><p>这些是接下来的流程说明，不需要在此处点击选择。</p></div>
+      <ol>
+        <li><Check size={16}/><div><strong>输入经验</strong><span>可录音、分段补充文字，或直接粘贴经历。</span></div></li>
+        <li><Check size={16}/><div><strong>核对整理结果</strong><span>AI 只提供初稿，你可以编辑、增补或删除。</span></div></li>
+        <li><Check size={16}/><div><strong>逐条确认隐私</strong><span>选择是否允许当前 Agent 使用该条经验。</span></div></li>
+      </ol>
+    </section>
+    <p className="agent-existing-link">已经有 Agent？请到 <Link to="/dashboard">我的空间</Link> 继续编辑已有条目。</p>
   </section>;
 }
